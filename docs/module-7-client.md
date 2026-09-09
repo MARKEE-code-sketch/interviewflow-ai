@@ -43,4 +43,4 @@ npm.cmd test
 npm.cmd run build
 ```
 
-Setup and result storage are process-local for the MVP and disappear when the server restarts. Durable transcript/scorecard storage remains a Module 8 decision.
+Module 8 replaces process-local storage with SQLite locally and PostgreSQL on Render. See [the production walkthrough](module-8-production.md).

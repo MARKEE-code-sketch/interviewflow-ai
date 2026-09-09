@@ -1,4 +1,5 @@
 import type { ResultResponse, SetupForm } from "./types";
+import { apiBaseUrl, backendUrl } from "./deployment";
 
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -23,10 +24,12 @@ async function responseError(response: Response): Promise<string> {
 
 async function callBackend(url: string, init?: RequestInit): Promise<Response> {
   try {
-    return await fetch(url, init);
+    return await fetch(backendUrl(url), init);
   } catch {
     throw new Error(
-      "Cannot reach the InterviewFlow backend on port 7860. Start the Python server, then try again.",
+      apiBaseUrl
+        ? "Cannot reach the deployed InterviewFlow backend. Please try again shortly."
+        : "Cannot reach the InterviewFlow backend on port 7860. Start the Python server, then try again.",
     );
   }
 }

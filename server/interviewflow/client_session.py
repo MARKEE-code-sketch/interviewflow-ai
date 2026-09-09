@@ -1,16 +1,27 @@
-"""Prepare browser-supplied interview inputs and expose session results in memory."""
+"""Prepare browser inputs and hand session state to the voice worker."""
 
 from __future__ import annotations
 
 import base64
 import binascii
-from dataclasses import dataclass
-from threading import Lock
+from dataclasses import asdict, dataclass
+from time import time
+from typing import Callable
 from uuid import uuid4
 
 from loguru import logger
 
-from interviewflow.grounded_context import GroundedContext, build_grounded_context
+from interviewflow.grounded_context import (
+    ContextSource,
+    GroundedContext,
+    build_grounded_context,
+)
+from interviewflow.persistence import (
+    MemoryPersistence,
+    PersistenceError,
+    SessionPersistence,
+    create_session_persistence,
+)
 from interviewflow.resume_ingestion import ResumeIngestionError, ingest_resume_pdf
 from interviewflow.rubric import load_approved_rubric
 
@@ -27,12 +38,41 @@ class PreparedInterview:
 
 
 class InterviewSessionStore:
-    """Small process-local handoff between HTTP setup, the bot, and result polling."""
+    """One-use setup handoff and expiring result storage."""
 
-    def __init__(self) -> None:
-        self._setups: dict[str, PreparedInterview] = {}
-        self._results: dict[str, dict] = {}
-        self._lock = Lock()
+    def __init__(
+        self,
+        persistence: SessionPersistence | None = None,
+        *,
+        clock: Callable[[], float] = time,
+        setup_ttl_seconds: float = 60 * 60,
+        result_ttl_seconds: float = 7 * 24 * 60 * 60,
+    ) -> None:
+        self._persistence = persistence or MemoryPersistence()
+        self._clock = clock
+        self._setup_ttl_seconds = setup_ttl_seconds
+        self._result_ttl_seconds = result_ttl_seconds
+
+    @staticmethod
+    def _to_payload(prepared: PreparedInterview) -> dict:
+        return {
+            "setup_id": prepared.setup_id,
+            "page_count": prepared.page_count,
+            "rubric": prepared.grounded.rubric.to_dict(),
+            "sources": [asdict(source) for source in prepared.grounded.sources],
+        }
+
+    @staticmethod
+    def _from_payload(payload: dict) -> PreparedInterview:
+        try:
+            rubric = load_approved_rubric(payload["rubric"], human_approved=True)
+            grounded = GroundedContext(
+                rubric=rubric,
+                sources=tuple(ContextSource(**source) for source in payload["sources"]),
+            )
+            return PreparedInterview(payload["setup_id"], grounded, payload["page_count"])
+        except (KeyError, TypeError, ValueError) as error:
+            raise ClientSetupError("This interview setup could not be restored.") from error
 
     def prepare(
         self,
@@ -59,8 +99,17 @@ class InterviewSessionStore:
             raise ClientSetupError(str(error)) from None
 
         prepared = PreparedInterview(uuid4().hex, grounded, resume.page_count)
-        with self._lock:
-            self._setups[prepared.setup_id] = prepared
+        try:
+            self._persistence.save_setup(
+                prepared.setup_id,
+                self._to_payload(prepared),
+                self._clock() + self._setup_ttl_seconds,
+            )
+        except PersistenceError as error:
+            logger.bind(event="interview_storage_write_failed", error_code=str(error)).warning(
+                "Interview setup storage failed"
+            )
+            raise ClientSetupError("Interview storage is temporarily unavailable.") from None
         logger.bind(
             event="client_interview_prepared",
             setup_id=prepared.setup_id,
@@ -70,29 +119,42 @@ class InterviewSessionStore:
         return prepared
 
     def claim(self, setup_id: str) -> PreparedInterview:
-        with self._lock:
-            prepared = self._setups.pop(setup_id, None)
-        if prepared is None:
+        try:
+            payload = self._persistence.claim_setup(setup_id, self._clock())
+        except PersistenceError as error:
+            logger.bind(event="interview_storage_read_failed", error_code=str(error)).warning(
+                "Interview setup storage failed"
+            )
+            raise ClientSetupError("Interview storage is temporarily unavailable.") from None
+        if payload is None:
             raise ClientSetupError("This interview setup is missing or was already used.")
-        return prepared
+        return self._from_payload(payload)
 
     def mark_evaluating(self, session_id: str) -> None:
-        with self._lock:
-            self._results[session_id] = {"status": "evaluating"}
+        self._save_result(session_id, {"status": "evaluating"})
 
     def save_scorecard(self, session_id: str, scorecard) -> None:
-        payload = scorecard.model_dump(mode="json") if hasattr(scorecard, "model_dump") else scorecard
-        with self._lock:
-            self._results[session_id] = {"status": "complete", "scorecard": payload}
+        payload = (
+            scorecard.model_dump(mode="json")
+            if hasattr(scorecard, "model_dump")
+            else scorecard
+        )
+        self._save_result(session_id, {"status": "complete", "scorecard": payload})
 
     def mark_unavailable(self, session_id: str, reason: str) -> None:
-        with self._lock:
-            self._results[session_id] = {"status": "unavailable", "message": reason}
+        self._save_result(session_id, {"status": "unavailable", "message": reason})
+
+    def _save_result(self, session_id: str, payload: dict) -> None:
+        self._persistence.save_result(
+            session_id, payload, self._clock() + self._result_ttl_seconds
+        )
 
     def result(self, session_id: str) -> dict | None:
-        with self._lock:
-            value = self._results.get(session_id)
-            return dict(value) if value is not None else None
+        value = self._persistence.get_result(session_id, self._clock())
+        return dict(value) if value is not None else None
+
+    def is_ready(self) -> bool:
+        return self._persistence.healthcheck()
 
 
-session_store = InterviewSessionStore()
+session_store = InterviewSessionStore(create_session_persistence())

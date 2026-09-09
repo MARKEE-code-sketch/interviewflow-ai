@@ -21,3 +21,4 @@ dashboard.png
 # Runtime uploads and reports (used in later modules)
 uploads/
 reports/
+server/data/

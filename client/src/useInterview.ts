@@ -9,6 +9,7 @@ import {
 } from "@pipecat-ai/client-react";
 
 import { getInterviewResult } from "./api";
+import { backendUrl, voiceTransport } from "./deployment";
 import type { ResultResponse, TimerSnapshot } from "./types";
 
 type StartResponse = TransportConnectionParams & { sessionId?: string; session_id?: string };
@@ -48,6 +49,16 @@ export function useInterview() {
     return () => window.clearInterval(interval);
   }, [timer, transportState]);
 
+  useEffect(() => {
+    if (!sessionId || (result && result.status !== "evaluating")) return;
+    const keepAlive = () => {
+      void fetch(backendUrl("/health"), { cache: "no-store" }).catch(() => undefined);
+    };
+    keepAlive();
+    const interval = window.setInterval(keepAlive, 60_000);
+    return () => window.clearInterval(interval);
+  }, [sessionId, result]);
+
   const start = async (setupId: string) => {
     if (!client) throw new Error("The voice client is not ready.");
     setError("");
@@ -55,9 +66,10 @@ export function useInterview() {
     setTimer(null);
     setDisplayedRemaining(15 * 60);
     const connection = await client.startBot({
-      endpoint: "/start",
+      endpoint: backendUrl("/start"),
       requestData: {
-        transport: "webrtc",
+        transport: voiceTransport,
+        ...(voiceTransport === "daily" ? { createDailyRoom: true } : {}),
         enableDefaultIceServers: true,
         body: { setup_id: setupId },
       },

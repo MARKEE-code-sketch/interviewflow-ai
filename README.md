@@ -6,7 +6,7 @@ The project is being built module by module. Read `blueprint.md` for the archite
 
 ## Current status
 
-Modules 0–2 provide the Python foundation, validated resume PDF extraction, and a grounded context builder with immutable approved rubrics. Module 3 adds the Groq text interviewer. Module 4 adds the English SmallWebRTC voice pipeline with Deepgram STT/TTS, local turn detection, interruptions, safe metrics and STT scoring. Live provider verification is the next gate. See the [Module 4 walkthrough](docs/module-4-voice-pipeline.md).
+Modules 0–7 provide resume ingestion, grounded context, the Groq interviewer, Deepgram voice pipeline, interview timer, evidence-backed scorecard, and React client. Module 8 adds SQLite/PostgreSQL persistence, Daily transport selection, Docker, CI, and a Render Blueprint. The remaining gate is a live Render deployment smoke test. See the [Module 8 walkthrough](docs/module-8-production.md).
 
 ## Project layout
 
@@ -75,3 +75,7 @@ The server controls the 15-minute interview lifecycle, reserves the final two mi
 ## Module 6
 
 The post-interview evaluator creates a validated rubric scorecard using Groq 120B. Read the [Module 6 walkthrough](docs/module-6-scorecard.md) for code explanations, offline tests, and deliberately invoked live evaluation commands. The scorecard UI comes in Module 7.
+
+## Module 8
+
+Local development uses SmallWebRTC and SQLite. The hosted configuration uses Daily WebRTC and PostgreSQL without changing the core interview pipeline. Read the [Module 8 walkthrough](docs/module-8-production.md) for the data lifecycle, verification commands, required secrets, and Render deployment steps.

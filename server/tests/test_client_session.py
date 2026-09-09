@@ -8,6 +8,7 @@ from reportlab.pdfgen import canvas
 
 from bot import app
 from interviewflow.client_session import ClientSetupError, InterviewSessionStore
+from interviewflow.persistence import SQLitePersistence
 
 
 def _pdf_bytes(tmp_path: Path) -> bytes:
@@ -67,6 +68,23 @@ def test_result_status_is_available_to_poll():
     assert store.result("session-1")["scorecard"]["overall_score"] == 80
 
 
+def test_prepared_context_can_be_restored_after_process_restart(tmp_path):
+    database = tmp_path / "sessions.db"
+    first_process = InterviewSessionStore(SQLitePersistence(database))
+    prepared = first_process.prepare(
+        resume_base64=base64.b64encode(_pdf_bytes(tmp_path)).decode("ascii"),
+        job_description="Build reliable Python services and explain engineering trade-offs.",
+        rubric=_rubric(),
+        rubric_approved=True,
+    )
+
+    restarted_process = InterviewSessionStore(SQLitePersistence(database))
+    restored = restarted_process.claim(prepared.setup_id)
+
+    assert restored.grounded.rubric.content_hash == prepared.grounded.rubric.content_hash
+    assert restored.grounded.sources == prepared.grounded.sources
+
+
 def test_setup_http_endpoint_returns_safe_session_metadata(tmp_path):
     response = TestClient(app).post(
         "/api/interview-setup",
@@ -84,3 +102,10 @@ def test_setup_http_endpoint_returns_safe_session_metadata(tmp_path):
     assert len(response.json()["setup_id"]) == 32
     assert response.json()["page_count"] == 1
     assert "resume" not in response.text.lower()
+
+
+def test_deployment_health_endpoints_are_safe():
+    client = TestClient(app)
+
+    assert client.get("/health").json() == {"status": "ok"}
+    assert client.get("/ready").json() == {"status": "ready"}

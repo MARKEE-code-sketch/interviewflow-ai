@@ -60,6 +60,7 @@ input:focus, textarea:focus { border-color: #65957f; box-shadow: 0 0 0 3px rgba(
 .rubric-row { padding: 9px 0 0; color: #34463f; font-size: 11px; }
 .rubric-row strong { color: #3f6958; }
 .approval-row { margin-top: 13px; padding-top: 12px; display: flex; align-items: flex-start; gap: 9px; color: #56625c; font-size: 10px; line-height: 1.45; border-top: 1px solid #daddd6; }
+.retention-note { margin: 10px 0 0; color: #75807b; font-size: 10px; line-height: 1.5; }
 .approval-row input { width: 15px; height: 15px; margin: 0; accent-color: var(--forest); }
 .primary-button { width: 100%; height: 48px; margin-top: 18px; padding: 0 17px; display: flex; align-items: center; justify-content: center; gap: 10px; color: white; border: 0; border-radius: 12px; background: var(--forest); box-shadow: 0 8px 18px rgba(23,63,51,.18); font-weight: 700; font-size: 12px; }
 .primary-button:hover:not(:disabled) { background: #0e3429; transform: translateY(-1px); }

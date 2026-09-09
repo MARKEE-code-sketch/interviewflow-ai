@@ -29,7 +29,7 @@ export function SetupPanel({ busy, error, onStart }: Props) {
           follow-ups, and returns a rubric-based scorecard after the call.
         </p>
         <div className="trust-row">
-          <div><ShieldIcon /><span><strong>Private by design</strong>Resume PDF is not stored</span></div>
+          <div><ShieldIcon /><span><strong>Private by design</strong>Raw resume PDF and audio are not stored</span></div>
           <div><CheckIcon /><span><strong>Grounded</strong>Questions cite your inputs</span></div>
         </div>
       </section>
@@ -68,6 +68,10 @@ export function SetupPanel({ busy, error, onStart }: Props) {
             <input type="checkbox" checked={approved} onChange={(event) => setApproved(event.target.checked)} />
             <span>I reviewed and approve this rubric for the interview.</span>
           </label>
+          <p className="retention-note">
+            Extracted setup text is deleted when the call starts. Your scorecard is retained
+            for seven days so you can retrieve it after the interview.
+          </p>
         </div>
 
         {error && <div className="error-banner" role="alert">{error}</div>}

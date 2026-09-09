@@ -21,6 +21,7 @@ from interviewflow.rubric import load_approved_rubric
 from interviewflow.voice_pipeline import run_voice_interview
 from interviewflow.voice_services import create_voice_services, load_voice_settings
 from interviewflow.client_session import ClientSetupError, session_store
+from interviewflow.persistence import PersistenceError
 
 
 class SetupRequest(BaseModel):
@@ -61,10 +62,29 @@ async def prepare_interview(request: SetupRequest):
 
 @app.get("/api/interview-results/{session_id}")
 async def interview_results(session_id: str):
-    result = session_store.result(session_id)
+    try:
+        result = session_store.result(session_id)
+    except PersistenceError:
+        raise HTTPException(status_code=503, detail="Interview storage is unavailable.") from None
     if result is None:
         raise HTTPException(status_code=404, detail="Interview result not found.")
     return result
+
+
+@app.get("/health")
+async def health():
+    """Process liveness check; it never calls an external AI provider."""
+
+    return {"status": "ok"}
+
+
+@app.get("/ready")
+async def ready():
+    """Readiness includes the configured session database."""
+
+    if not session_store.is_ready():
+        raise HTTPException(status_code=503, detail="Interview storage is unavailable.")
+    return {"status": "ready"}
 
 
 EXAMPLE_INPUT = Path(__file__).resolve().parent / "examples" / "interview.json"
