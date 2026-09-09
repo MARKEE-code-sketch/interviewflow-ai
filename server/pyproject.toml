@@ -1,0 +1,26 @@
+[project]
+name = "interviewflow-ai"
+version = "0.1.0"
+description = "Document-grounded real-time voice interview coach"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "loguru>=0.7,<1",
+    "pipecat-ai[runner,webrtc,groq,deepgram]>=1.8.1,<2",
+    "pypdf>=6.18,<7",
+    "pydantic>=2,<3",
+    "python-dotenv>=1.2,<2",
+]
+
+[dependency-groups]
+eval = [
+    "deepeval>=3,<4",
+    "jiwer>=4,<5",
+]
+dev = [
+    "pytest>=8.4,<9",
+    "reportlab>=4.4,<5",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

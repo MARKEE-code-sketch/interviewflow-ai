@@ -1,0 +1,16 @@
+[
+  {
+    "turn_id": "turn-0001",
+    "role": "interviewer",
+    "text": "How did you evaluate the effect of your query changes?",
+    "phase": "main_interview",
+    "timestamp": "2026-09-09T00:00:00Z"
+  },
+  {
+    "turn_id": "turn-0002",
+    "role": "candidate",
+    "text": "I compared the same queries before and after adding an index. I ran each query ten times and compared their median latency. I did not test concurrent traffic, so I cannot claim it improved production performance.",
+    "phase": "main_interview",
+    "timestamp": "2026-09-09T00:00:20Z"
+  }
+]

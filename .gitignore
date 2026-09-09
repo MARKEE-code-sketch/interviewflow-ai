@@ -1,0 +1,23 @@
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Python and uv generated files
+.venv/
+.uv-cache/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.deepeval/
+
+# Frontend generated files (used in a later module)
+node_modules/
+dist/
+*.tsbuildinfo
+.chrome-ui-check/
+dashboard.png
+
+# Runtime uploads and reports (used in later modules)
+uploads/
+reports/

@@ -1,0 +1,26 @@
+{
+  "notice": "Fictional test data. Review the rubric before using it for a real interview.",
+  "resume_text": "Built a Python API backed by PostgreSQL. Measured request latency using a load test and improved queries with indexes. Built a retrieval prototype and evaluated Recall@5 on labeled queries.",
+  "job_description": "Software engineer developing reliable Python APIs. Explain database decisions, testing, performance measurement and trade-offs.",
+  "rubric": {
+    "rubric_id": "software-engineer-demo",
+    "role_title": "Software Engineer",
+    "version": 1,
+    "criteria": [
+      {
+        "criterion_id": "reasoning",
+        "name": "Technical reasoning",
+        "definition": "Explains implementation decisions, alternatives and trade-offs.",
+        "weight": 60,
+        "anchors": {"1": "No relevant reasoning", "2": "Major reasoning gaps", "3": "Explains a workable approach", "4": "Explains decisions and trade-offs", "5": "Supports decisions with alternatives, constraints and evidence"}
+      },
+      {
+        "criterion_id": "evidence",
+        "name": "Evidence and measurement",
+        "definition": "Supports claims with implementation details and appropriate measurements.",
+        "weight": 40,
+        "anchors": {"1": "No supporting evidence", "2": "Vague claims", "3": "Concrete implementation example", "4": "Relevant measurements or observations", "5": "Clear reproducible evaluation with limitations acknowledged"}
+      }
+    ]
+  }
+}

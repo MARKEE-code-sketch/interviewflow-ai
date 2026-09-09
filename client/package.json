@@ -1,0 +1,29 @@
+{
+  "name": "interviewflow-client",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --configLoader runner",
+    "build": "tsc --noEmit -p tsconfig.app.json && vite build --configLoader runner",
+    "test": "vitest run --configLoader runner"
+  },
+  "dependencies": {
+    "@pipecat-ai/client-js": "^1.5.0",
+    "@pipecat-ai/client-react": "^1.5.0",
+    "@pipecat-ai/small-webrtc-transport": "^1.5.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/react": "^16.3.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "jsdom": "^26.1.0",
+    "typescript": "~5.9.2",
+    "vite": "^7.1.0",
+    "vitest": "^3.2.0"
+  }
+}
