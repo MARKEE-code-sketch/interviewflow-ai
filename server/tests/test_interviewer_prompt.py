@@ -26,6 +26,9 @@ def test_prompt_has_regression_rules_from_live_evaluation():
     assert "use both the resume and the job description" in prompt
     assert "within the first four assessment questions" in prompt
     assert "never ask more than two consecutive resume-grounded questions" in prompt
+    assert "question under 25 words" in prompt
+    assert "complete response under 40 words" in prompt
+    assert "do not repeat long lists" in prompt
 
 
 def test_prompt_rules_are_role_and_resume_independent():

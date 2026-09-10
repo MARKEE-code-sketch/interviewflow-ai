@@ -19,6 +19,8 @@ from pipecat.processors.aggregators.llm_response_universal import (
 from pipecat.runner.types import RunnerArguments
 from pipecat.runner.utils import create_transport
 from pipecat.transports.base_transport import BaseTransport, TransportParams
+from pipecat.turns.user_stop import SpeechTimeoutUserTurnStopStrategy
+from pipecat.turns.user_turn_strategies import UserTurnStrategies
 from pipecat.workers.runner import WorkerRunner
 
 from interviewflow.grounded_context import GroundedContext
@@ -85,10 +87,13 @@ def build_voice_pipeline(
     user, assistant = LLMContextAggregatorPair(
         context,
         user_params=LLMUserAggregatorParams(
-            # Finalize after a short silence. The incomplete-turn LLM gate is
-            # intentionally disabled: it can keep valid hosted turns open when
-            # the interviewer prompt does not emit its private marker format.
-            vad_analyzer=SileroVADAnalyzer(params=VADParams(stop_secs=0.6)),
+            vad_analyzer=SileroVADAnalyzer(params=VADParams(stop_secs=0.2)),
+            # Wait briefly after VAD detects silence so natural pauses remain
+            # part of one answer. This avoids Smart Turn splitting hosted audio
+            # into tiny messages while still giving deterministic turn endings.
+            user_turn_strategies=UserTurnStrategies(
+                stop=[SpeechTimeoutUserTurnStopStrategy(user_speech_timeout=1.2)]
+            ),
         ),
     )
     pipeline = Pipeline([
