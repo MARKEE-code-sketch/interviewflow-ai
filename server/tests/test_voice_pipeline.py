@@ -81,10 +81,8 @@ def test_pipeline_uses_standard_order_and_enables_metrics(grounded):
 
     user_aggregator = application_processors[2]
     assert user_aggregator._params.vad_analyzer is not None
-    assert user_aggregator._params.vad_analyzer.params.stop_secs == 1.0
-    assert type(user_aggregator._params.user_turn_strategies).__name__ == (
-        "FilterIncompleteUserTurnStrategies"
-    )
+    assert user_aggregator._params.vad_analyzer.params.stop_secs == 0.6
+    assert user_aggregator._params.filter_incomplete_user_turns is False
     assert not hasattr(built.lifecycle, "end_interview_tool")
     assert all(
         strategy._enable_interruptions

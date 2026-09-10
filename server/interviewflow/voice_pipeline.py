@@ -19,7 +19,6 @@ from pipecat.processors.aggregators.llm_response_universal import (
 from pipecat.runner.types import RunnerArguments
 from pipecat.runner.utils import create_transport
 from pipecat.transports.base_transport import BaseTransport, TransportParams
-from pipecat.turns.user_turn_strategies import FilterIncompleteUserTurnStrategies
 from pipecat.workers.runner import WorkerRunner
 
 from interviewflow.grounded_context import GroundedContext
@@ -86,8 +85,10 @@ def build_voice_pipeline(
     user, assistant = LLMContextAggregatorPair(
         context,
         user_params=LLMUserAggregatorParams(
-            vad_analyzer=SileroVADAnalyzer(params=VADParams(stop_secs=1.0)),
-            user_turn_strategies=FilterIncompleteUserTurnStrategies(),
+            # Finalize after a short silence. The incomplete-turn LLM gate is
+            # intentionally disabled: it can keep valid hosted turns open when
+            # the interviewer prompt does not emit its private marker format.
+            vad_analyzer=SileroVADAnalyzer(params=VADParams(stop_secs=0.6)),
         ),
     )
     pipeline = Pipeline([
