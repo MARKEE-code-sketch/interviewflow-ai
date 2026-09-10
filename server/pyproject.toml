@@ -4,9 +4,8 @@ version = "0.1.0"
 description = "Document-grounded real-time voice interview coach"
 requires-python = ">=3.12,<3.13"
 dependencies = [
-    "daily-python>=0.29,<1; sys_platform != 'win32'",
     "loguru>=0.7,<1",
-    "pipecat-ai[runner,webrtc,groq,deepgram]>=1.8.1,<2",
+    "pipecat-ai[runner,webrtc,livekit,groq,deepgram]>=1.8.1,<2",
     "psycopg[binary]>=3.2,<4",
     "pypdf>=6.18,<7",
     "pydantic>=2,<3",

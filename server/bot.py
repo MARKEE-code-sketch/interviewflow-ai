@@ -1,6 +1,7 @@
 """Local WebRTC entry point for the Module 4 voice interview smoke test."""
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -80,10 +81,14 @@ async def health():
 
 @app.get("/ready")
 async def ready():
-    """Readiness includes the configured session database."""
+    """Readiness includes storage and the selected transport configuration."""
 
     if not session_store.is_ready():
         raise HTTPException(status_code=503, detail="Interview storage is unavailable.")
+    if os.getenv("VOICE_TRANSPORT", "webrtc").lower() == "livekit" and not all(
+        os.getenv(name) for name in ("LIVEKIT_URL", "LIVEKIT_API_KEY", "LIVEKIT_API_SECRET")
+    ):
+        raise HTTPException(status_code=503, detail="Voice transport is not configured.")
     return {"status": "ready"}
 
 

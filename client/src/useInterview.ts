@@ -69,8 +69,7 @@ export function useInterview() {
       endpoint: backendUrl("/start"),
       requestData: {
         transport: voiceTransport,
-        ...(voiceTransport === "daily" ? { createDailyRoom: true } : {}),
-        enableDefaultIceServers: true,
+        ...(voiceTransport === "webrtc" ? { enableDefaultIceServers: true } : {}),
         body: { setup_id: setupId },
       },
     }) as StartResponse;

@@ -9,9 +9,9 @@
     "test": "vitest run --configLoader runner"
   },
   "dependencies": {
-    "@pipecat-ai/client-js": "^1.5.0",
+    "@pipecat-ai/client-js": "~1.13.0",
     "@pipecat-ai/client-react": "^1.5.0",
-    "@pipecat-ai/daily-transport": "^1.6.8",
+    "@pipecat-ai/livekit-transport": "^1.0.0",
     "@pipecat-ai/small-webrtc-transport": "^1.5.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"

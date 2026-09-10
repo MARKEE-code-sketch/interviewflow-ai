@@ -57,13 +57,13 @@ flowchart TB
 
     subgraph LIVE[Real-time Pipecat voice pipeline]
         direction TB
-        MIC[Browser microphone] --> IN[SmallWebRTC<br/>transport input]
+        MIC[Browser microphone] --> IN[WebRTC transport input<br/>SmallWebRTC local / LiveKit hosted]
         IN --> S[Speech to text]
         S --> UC[Pipecat user<br/>context aggregator]
         C --> UC
         UC --> L[Streaming LLM<br/>interviewer]
         L --> T[Text to speech]
-        T --> OUT[SmallWebRTC<br/>transport output]
+        T --> OUT[WebRTC transport output<br/>SmallWebRTC local / LiveKit hosted]
         OUT --> SPEAKER[Browser speaker]
         OUT --> AC[Pipecat assistant<br/>context aggregator]
         AC --> L
@@ -107,7 +107,7 @@ StudyPal demonstrates the pattern we want to preserve: load source content, plac
 | 5. Interview controller | Flexible 15-minute opening, questioning, candidate questions, and closing | Fake-clock tests and early-end behavior pass                               |
 | 6. Scorecard            | Structured feedback with evidence references                              | Every scored finding has evidence; human-reviewed cases pass               |
 | 7. Client               | Upload, job input, call controls, timer, transcript, and scorecard        | Each visible control works in an end-to-end browser check                  |
-| 8. Production hardening | Durable setup/results, CI, Docker, Daily, and Render configuration         | Full regression suite and deployment smoke test pass                       |
+| 8. Production hardening | Durable setup/results, CI, Docker, LiveKit, and Render configuration       | Full regression suite and deployment smoke test pass                       |
 
 No module is implemented until its short design explanation is approved.
 
@@ -182,11 +182,11 @@ No module is implemented until its short design explanation is approved.
 
 ### Module 8 implementation
 
-- Local development remains SmallWebRTC plus SQLite. The Render deployment selects Daily plus PostgreSQL through environment variables; the interview pipeline itself is unchanged.
+- Local development remains SmallWebRTC plus SQLite. The Render deployment selects LiveKit plus PostgreSQL through environment variables; the interview pipeline itself is unchanged.
 - `persistence.py` provides the small storage boundary. No raw PDF or audio is stored. Extracted setup text is deleted when the call claims it, and result records expire after seven days.
 - The Docker image runs Pipecat's supported runner with the transport selected at startup. `render.yaml` defines the Docker backend, static React frontend, readiness check, non-secret settings, and secret placeholders.
 - GitHub Actions runs the complete backend suite and the client tests/build before Render deploys a passing commit.
-- A live Render/Daily/Neon smoke test remains the final Module 8 gate. See [Module 8 walkthrough](docs/module-8-production.md).
+- A live Render/LiveKit/Neon smoke test remains the final Module 8 gate. See [Module 8 walkthrough](docs/module-8-production.md).
 
 ## 6. Evaluation strategy
 
@@ -205,7 +205,7 @@ Approved direction:
 - Python 3.12 and `uv`
 - Pipecat native pipeline and runner
 - React with the Pipecat client SDK
-- SmallWebRTC locally and Daily WebRTC on Render
+- SmallWebRTC locally and LiveKit WebRTC on Render
 - `pypdf` for in-memory, page-referenced resume extraction
 - Loguru for privacy-safe structured application events
 - pytest, DeepEval, Pipecat Evals, and Pipecat metrics

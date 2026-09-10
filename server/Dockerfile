@@ -14,4 +14,4 @@ RUN uv sync --frozen --no-dev --no-install-project
 
 COPY . .
 
-CMD ["sh", "-c", "python bot.py --host 0.0.0.0 --port ${PORT:-7860} --transport ${VOICE_TRANSPORT:-daily}"]
+CMD ["sh", "-c", "python bot.py --host 0.0.0.0 --port ${PORT:-7860} --transport ${VOICE_TRANSPORT:-livekit}"]

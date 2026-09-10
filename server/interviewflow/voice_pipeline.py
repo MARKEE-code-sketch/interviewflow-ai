@@ -35,12 +35,12 @@ class VoicePipelineError(RuntimeError):
     """Safe voice-pipeline error that does not include provider response data."""
 
 
-def _daily_transport_params():
-    """Import Daily only on Linux deployments; its SDK has no Windows wheel."""
+def _livekit_transport_params():
+    """Load LiveKit only when the hosted transport is selected."""
 
-    from pipecat.transports.daily.transport import DailyParams
+    from pipecat.transports.livekit.transport import LiveKitParams
 
-    return DailyParams(audio_in_enabled=True, audio_out_enabled=True)
+    return LiveKitParams(audio_in_enabled=True, audio_out_enabled=True)
 
 
 @dataclass(frozen=True, slots=True)
@@ -199,7 +199,7 @@ async def run_voice_interview(
     transport = await create_transport(
         runner_args,
         {
-            "daily": _daily_transport_params,
+            "livekit": _livekit_transport_params,
             "webrtc": lambda: TransportParams(
                 audio_in_enabled=True,
                 audio_out_enabled=True,

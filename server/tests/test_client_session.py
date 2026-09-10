@@ -109,3 +109,27 @@ def test_deployment_health_endpoints_are_safe():
 
     assert client.get("/health").json() == {"status": "ok"}
     assert client.get("/ready").json() == {"status": "ready"}
+
+
+def test_livekit_readiness_requires_all_credentials(monkeypatch):
+    monkeypatch.setenv("VOICE_TRANSPORT", "livekit")
+    monkeypatch.delenv("LIVEKIT_URL", raising=False)
+    monkeypatch.delenv("LIVEKIT_API_KEY", raising=False)
+    monkeypatch.delenv("LIVEKIT_API_SECRET", raising=False)
+
+    response = TestClient(app).get("/ready")
+
+    assert response.status_code == 503
+    assert response.json() == {"detail": "Voice transport is not configured."}
+
+
+def test_livekit_readiness_accepts_complete_configuration(monkeypatch):
+    monkeypatch.setenv("VOICE_TRANSPORT", "livekit")
+    monkeypatch.setenv("LIVEKIT_URL", "wss://example.livekit.cloud")
+    monkeypatch.setenv("LIVEKIT_API_KEY", "test-key")
+    monkeypatch.setenv("LIVEKIT_API_SECRET", "test-secret")
+
+    response = TestClient(app).get("/ready")
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "ready"}

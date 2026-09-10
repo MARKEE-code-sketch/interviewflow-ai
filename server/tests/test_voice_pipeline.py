@@ -8,7 +8,11 @@ from interviewflow.grounded_context import build_grounded_context
 from interviewflow.interviewer import InterviewerSettings
 from interviewflow.resume_ingestion import ResumeDocument, ResumePage
 from interviewflow.rubric import load_approved_rubric
-from interviewflow.voice_pipeline import VoicePipelineError, build_voice_pipeline
+from interviewflow.voice_pipeline import (
+    VoicePipelineError,
+    _livekit_transport_params,
+    build_voice_pipeline,
+)
 from interviewflow.voice_services import VoiceServices
 
 
@@ -97,6 +101,13 @@ def test_pipeline_rejects_oversized_context_before_provider_call(grounded):
             VoiceServices(stt=FrameProcessor(), tts=FrameProcessor()),
             llm=FrameProcessor(),
         )
+
+
+def test_livekit_transport_enables_two_way_audio():
+    params = _livekit_transport_params()
+
+    assert params.audio_in_enabled is True
+    assert params.audio_out_enabled is True
 
 
 def test_finalized_events_capture_transcript_without_synthetic_start(grounded):

@@ -12,7 +12,7 @@ services:
       - key: APP_ENV
         value: production
       - key: VOICE_TRANSPORT
-        value: daily
+        value: livekit
       - key: INTERVIEW_DURATION_MINUTES
         value: 15
       - key: GROQ_MODEL
@@ -29,7 +29,11 @@ services:
         sync: false
       - key: DEEPGRAM_API_KEY
         sync: false
-      - key: DAILY_API_KEY
+      - key: LIVEKIT_URL
+        sync: false
+      - key: LIVEKIT_API_KEY
+        sync: false
+      - key: LIVEKIT_API_SECRET
         sync: false
       - key: DATABASE_URL
         sync: false
@@ -44,7 +48,7 @@ services:
       - key: VITE_API_BASE_URL
         value: https://interviewflow-ai-mrinal-api.onrender.com
       - key: VITE_VOICE_TRANSPORT
-        value: daily
+        value: livekit
     routes:
       - type: rewrite
         source: /*

@@ -5,13 +5,17 @@ export const apiBaseUrl = (
   explicitBaseUrl || (renderApiHost ? `https://${renderApiHost}` : "")
 ).replace(/\/$/, "");
 
-const configuredTransport = (import.meta.env.VITE_VOICE_TRANSPORT || "webrtc").toLowerCase();
+export type VoiceTransport = "webrtc" | "livekit";
 
-if (configuredTransport !== "webrtc" && configuredTransport !== "daily") {
-  throw new Error("VITE_VOICE_TRANSPORT must be either 'webrtc' or 'daily'.");
+export function parseVoiceTransport(value?: string): VoiceTransport {
+  const configured = (value || "webrtc").toLowerCase();
+  if (configured !== "webrtc" && configured !== "livekit") {
+    throw new Error("VITE_VOICE_TRANSPORT must be either 'webrtc' or 'livekit'.");
+  }
+  return configured;
 }
 
-export const voiceTransport = configuredTransport as "webrtc" | "daily";
+export const voiceTransport = parseVoiceTransport(import.meta.env.VITE_VOICE_TRANSPORT);
 
 export function backendUrl(path: string): string {
   return `${apiBaseUrl}${path}`;

@@ -6,7 +6,7 @@ The project is being built module by module. Read `blueprint.md` for the archite
 
 ## Current status
 
-Modules 0–7 provide resume ingestion, grounded context, the Groq interviewer, Deepgram voice pipeline, interview timer, evidence-backed scorecard, and React client. Module 8 adds SQLite/PostgreSQL persistence, Daily transport selection, Docker, CI, and a Render Blueprint. The remaining gate is a live Render deployment smoke test. See the [Module 8 walkthrough](docs/module-8-production.md).
+Modules 0–7 provide resume ingestion, grounded context, the Groq interviewer, Deepgram voice pipeline, interview timer, evidence-backed scorecard, and React client. Module 8 adds SQLite/PostgreSQL persistence, LiveKit transport selection, Docker, CI, and a Render Blueprint. The remaining gate is a live Render deployment smoke test. See the [Module 8 walkthrough](docs/module-8-production.md).
 
 ## Project layout
 
@@ -78,4 +78,4 @@ The post-interview evaluator creates a validated rubric scorecard using Groq 120
 
 ## Module 8
 
-Local development uses SmallWebRTC and SQLite. The hosted configuration uses Daily WebRTC and PostgreSQL without changing the core interview pipeline. Read the [Module 8 walkthrough](docs/module-8-production.md) for the data lifecycle, verification commands, required secrets, and Render deployment steps.
+Local development uses SmallWebRTC and SQLite. The hosted configuration uses LiveKit WebRTC and PostgreSQL without changing the core interview pipeline. Read the [Module 8 walkthrough](docs/module-8-production.md) for the data lifecycle, verification commands, required secrets, and Render deployment steps.
